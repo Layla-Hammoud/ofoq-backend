@@ -2,23 +2,24 @@ import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
 
-const userSchema = new mongoose.Schema(
+const domainSchema = new mongoose.Schema(
   {
-    userName: {
+    name: {
+      type: String,
+      required: true,
+      unique:true
+    },
+    description: {
       type: String,
       required: true,
     },
-    email: {
+    image: {
       type: String,
       required: true,
     },
-    password: {
-      type: String,
-      required: true,
-    },
-    role: {
-      enum: ["student", "teacher", "admin"],
-      default: "student",
+    skillsDeveloped: {
+      type: [String],
+      required: true
     },
   },
   {
@@ -26,4 +27,4 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-export default model("User", userSchema);
+export default model("Domain", domainSchema);
