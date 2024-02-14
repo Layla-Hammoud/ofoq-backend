@@ -170,7 +170,6 @@ const updateDomain = async (req, res) => {
     });
   } catch (error) {
     if(req.file)deleteImage(req.file.location);
-    console.log(error)
     return res.status(500).json({
       success: false,
       error: "error while updating domain",
