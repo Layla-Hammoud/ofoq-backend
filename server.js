@@ -1,5 +1,6 @@
 import express from "express";
 import domainRouter from "./routes/domain.route.js"; 
+import userRouter from "./routes/user.route.js";
 import "dotenv/config.js";
 import cors from "cors";
 import morgan from "morgan";
@@ -18,6 +19,7 @@ app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use('/domain',domainRouter)
+app.use('/user',userRouter)
 
 const port = process.env.PORT || 4000;
 dbConnect();

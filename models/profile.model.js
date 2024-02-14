@@ -2,17 +2,17 @@ import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
 
-const teacherSchema = new mongoose.Schema(
+const profileSchema = new mongoose.Schema(
   {
-    teacherId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    bio: {
+    firstName: {
       type: String,
       required: true,
     },
-    image: {
+    lastName: {
+      type: String,
+      required: true,
+    },
+    bio: {
       type: String,
       required: true,
     },
@@ -30,6 +30,7 @@ const teacherSchema = new mongoose.Schema(
     certifications: {
       type: [String],
       default: [],
+      required: true,
     },
     socialMedia: {
       type: {
@@ -37,11 +38,11 @@ const teacherSchema = new mongoose.Schema(
         linkedin: String,
       },
       default: {},
-    },
+    }
   },
   {
     timestamps: true,
   }
 );
 
-export default model("Teacher", teacherSchema);
+export default model("Profile", profileSchema);
