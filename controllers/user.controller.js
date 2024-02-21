@@ -172,7 +172,7 @@ const getUsers = async (req, res) => {
 const getUser = async (req, res) => {
   const id = req.user.id;
   try {
-    const user = await UserModel.find({ _id: id });
+    const user = await UserModel.find({ _id: id }).populate('domainId', 'name');
     res.status(200).json({
       success: true,
       data: user,

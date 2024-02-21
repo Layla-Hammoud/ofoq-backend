@@ -34,7 +34,7 @@ const createDomain = async (req, res) => {
       image,
       skillsDeveloped,
     });
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: newDomain,
       message: "New academic domain has been created successfully.",
@@ -52,7 +52,7 @@ const createDomain = async (req, res) => {
 const getDomains = async (req, res, next) => {
   try {
     const domains = await DomainModel.find({});
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: domains,
       message: "All domains retrieved successfully.",
@@ -118,7 +118,7 @@ const deleteDomain = async (req, res) => {
       });
     }
     if (oldDomain.image) deleteImage(oldDomain);
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: domain,
       message: "domain deleted successfully",

@@ -2,6 +2,9 @@ import express from "express";
 import domainRouter from "./routes/domain.route.js"; 
 import userRouter from "./routes/user.route.js";
 import courseRouter from "./routes/course.route.js";
+import chapterRouter from "./routes/chapter.route.js";
+import resourceRouter from "./routes/resource.route.js";
+import eventRouter from "./routes/event.route.js";
 import "dotenv/config.js";
 import cors from "cors";
 import morgan from "morgan";
@@ -22,6 +25,9 @@ app.use(cookieParser());
 app.use('/domain',domainRouter)
 app.use('/user',userRouter)
 app.use('/course',courseRouter)
+app.use('/chapter',chapterRouter)
+app.use('/resource',resourceRouter)
+app.use('/event',eventRouter)
 
 const port = process.env.PORT || 4000;
 dbConnect();
