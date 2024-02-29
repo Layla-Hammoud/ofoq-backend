@@ -28,8 +28,7 @@ const profileSchema = new mongoose.Schema(
       type: Number,
     },
     certifications: {
-      type: [String],
-      default: [],
+      type: String,
       required: true,
     },
     socialMedia: {

@@ -9,6 +9,10 @@ const eventSchema = new mongoose.Schema(
       ref: "Domain",
       required: true,
     },
+    link: {
+      type: String,
+      required: true,
+    },
     teacherId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -26,16 +30,33 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    time: {
+    date: {
+      type: Date,
+      required: true,
+    },
+    startTime: {
+      type: Date,
+      required: true,
+    },
+    endTime: {
       type: Date,
       required: true,
     },
     duration: {
       type: String,
-      required: Number,
+      required: true,
     },
-    studentId: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    platformType: {
+      type: String,
+      required: true,
+      enum: ["Zoom", "Teams", "Google Meet", "Other"],
+    },
+    studentId: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      default: [],
+    },
   },
+
   {
     timestamps: true,
   }

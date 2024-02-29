@@ -6,6 +6,7 @@ const chapterSchema = new mongoose.Schema(
   {
     courseId: {
       type: String,
+      ref:'Course',
       required: true,
     },
     description: {

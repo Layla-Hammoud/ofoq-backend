@@ -4,6 +4,8 @@ import { generateToken } from "../utils/jwt.js";
 import profileModel from "../models/profile.model.js";
 import bcrypt from "bcryptjs";
 import userModel from "../models/user.model.js";
+import { generateStrongPassword } from "../utils/passwordGenerator.js";
+import { sendInvitationEmail } from "../utils/sendingEmails.js";
 const register = async (req, res) => {
   let {
     userName,
@@ -59,6 +61,8 @@ const register = async (req, res) => {
         socialMedia,
       });
       profileId = newprofile._id;
+      password = "Teatcher@90";
+      userName = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
     }
     const newUser = await UserModel.create({
       userName,
@@ -71,6 +75,7 @@ const register = async (req, res) => {
       domainId,
     });
     const jwtToken = generateToken(newUser);
+    bcrypt;
     res.cookie("accessToken", jwtToken, {
       httpOnly: true,
       sameSite: "strict",
@@ -84,7 +89,7 @@ const register = async (req, res) => {
   } catch (error) {
     if (req.file) {
       console.log(req.file.location);
-      deleteImage(req.file.location);
+      // deleteImage(req.file.location);
     }
     return res.status(500).json({
       error: error.message,
@@ -172,7 +177,7 @@ const getUsers = async (req, res) => {
 const getUser = async (req, res) => {
   const id = req.user.id;
   try {
-    const user = await UserModel.find({ _id: id }).populate('domainId', 'name');
+    const user = await UserModel.find({ _id: id }).populate("domainId", "name");
     res.status(200).json({
       success: true,
       data: user,
@@ -188,9 +193,9 @@ const getUser = async (req, res) => {
 };
 
 const getTeacherProfile = async (req, res) => {
-  const id = req.user.id;
+  const { id } = req.body;
   try {
-    const userProfile = await UserModel.find({ _id: id }).populate("profileId");;
+    const userProfile = await UserModel.find({ _id: id }).populate("profileId");
     res.status(200).json({
       success: true,
       data: userProfile,
@@ -205,12 +210,11 @@ const getTeacherProfile = async (req, res) => {
   }
 };
 
-
 const deleteUser = async (req, res) => {
   const { id } = req.body;
   try {
     const user = await UserModel.findOneAndDelete({ _id: id });
-    if(user.role === 'teacher'){
+    if (user.role === "teacher") {
       await profileModel.findOneAndDelete({ _id: user.profileId });
     }
     res.status(200).json({
@@ -228,8 +232,6 @@ const deleteUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const id = req.user.id;
-  console.log(id)
   let {
     userName,
     password,
@@ -245,16 +247,19 @@ const updateUser = async (req, res) => {
     certifications,
     socialMedia,
     imageURL,
-    profileId
+    userId,
+    profileId,
+    email,
   } = req.body;
+
   try {
     let image;
     if (req.file) {
       image = req.file.location;
-      deleteImage(imageURL)
+      deleteImage(imageURL);
     }
-    if(req.user.role === "teacher"){
-       const profile = await profileModel.findByIdAndUpdate(
+    if (req.user.role === "teacher") {
+      const profile = await profileModel.findByIdAndUpdate(
         { _id: profileId },
         {
           firstName,
@@ -268,10 +273,14 @@ const updateUser = async (req, res) => {
         },
         { new: true }
       );
-      console.log(profile)
+      if (isApproved === "true") {
+        console.log("inside", isApproved);
+        password = generateStrongPassword();
+        sendInvitationEmail(firstName, lastName, email, password);
+      }
     }
     const user = await userModel.findByIdAndUpdate(
-      { _id: id },
+      { _id: userId },
       {
         userName,
         password,
@@ -290,7 +299,7 @@ const updateUser = async (req, res) => {
 
     return res.status(201).json({
       message: "User successfully updated",
-      data: user, 
+      data: user,
       success: true,
     });
   } catch (error) {
@@ -301,4 +310,13 @@ const updateUser = async (req, res) => {
     });
   }
 };
-export { register, login, logout, getUsers, getUser, deleteUser, updateUser, getTeacherProfile };
+export {
+  register,
+  login,
+  logout,
+  getUsers,
+  getUser,
+  deleteUser,
+  updateUser,
+  getTeacherProfile,
+};

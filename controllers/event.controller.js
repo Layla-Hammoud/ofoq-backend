@@ -2,20 +2,32 @@ import eventModel from "../models/event.model.js";
 import mongoose from "mongoose";
 const createEvent = async (req, res) => {
   try {
-    const { domainId, teacherId, title, time, duration, description } =
-      req.body;
+    const {
+      domainId,
+      teacherId,
+      title,
+      date,
+      duration,
+      description,
+      startTime,
+      endTime,
+      link,
+    } = req.body;
     if (
       !domainId ||
       !description ||
       !title ||
       !teacherId ||
-      !time ||
-      !duration
+      !date ||
+      !duration ||
+      !startTime ||
+      !endTime ||
+      !link
     ) {
       return res.status(400).json({
         success: false,
         error:
-          "Incomplete data. Please provide domainId, teacherId, title, time, duration, description ",
+          "Incomplete data. Please provide domainId, teacherId, title, start Time ,end Time ,link, date, duration, description ",
         data: null,
       });
     }
@@ -30,9 +42,12 @@ const createEvent = async (req, res) => {
       image,
       teacherId,
       title,
-      time,
+      date,
+      startTime,
+      endTime,
       duration,
       description,
+      link,
     });
     return res.status(200).json({
       success: true,
@@ -50,12 +65,27 @@ const createEvent = async (req, res) => {
     .json({ success: false, error: "error while creating event", data: null });
 };
 
-const getEvents = async (req, res, next) => {
+const getEvents = async (req, res) => {
+  const { domainId, page = 1, pageSize = 10 } = req.body;
+  const query = domainId === "all" ? {} : { domainId };
+  console.log(query);
   try {
-    const events = await eventModel.find({});
+    const totalItems = await eventModel.countDocuments(query);
+    const events = await eventModel
+      .find(query)
+      .populate({
+        path: "teacherId",
+        populate: {
+          path: "profileId",
+          model: "Profile",
+        },
+      })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
     res.status(200).json({
       success: true,
       data: events,
+      totalItems,
       message: "All events retrieved successfully.",
     });
   } catch (error) {
@@ -77,7 +107,13 @@ const getEvent = async (req, res, next) => {
     });
   }
   try {
-    const event = await eventModel.find({ _id: id });
+    const event = await eventModel.findById(id).populate({
+      path: "teacherId",
+      populate: {
+        path: "profileId",
+        model: "Profile",
+      },
+    });
     if (!event) {
       return res.status(200).json({
         success: true,
@@ -99,9 +135,47 @@ const getEvent = async (req, res, next) => {
   }
 };
 
+const getTeacherEvents = async (req, res, next) => {
+  const { id } = req.body;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({
+      success: false,
+      error: "No such event",
+      data: null,
+    });
+  }
+  try {
+    const events = await eventModel.find({ teacherId: id }).populate({
+      path: "teacherId",
+      populate: {
+        path: "profileId",
+        model: "Profile",
+      },
+    });
+    if (!events) {
+      return res.status(200).json({
+        success: true,
+        data: events,
+        message: "No event found.",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: events,
+      message: "All event retrieved successfully.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "error while getting events",
+      data: null,
+    });
+  }
+};
+
 const deleteEvent = async (req, res) => {
   try {
-    const { id, imageURL } = req.body;
+    const { id, imageURL, link } = req.body;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({
         success: false,
@@ -136,8 +210,19 @@ const deleteEvent = async (req, res) => {
 };
 const updateEvent = async (req, res) => {
   try {
-    const { domainId, teacherId, title, time, duration, description } =
-      req.body;
+    const {
+      id,
+      domainId,
+      teacherId,
+      title,
+      date,
+      duration,
+      description,
+      startTime,
+      endTime,
+      link,
+      studentId,
+    } = req.body;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({
         success: false,
@@ -153,13 +238,17 @@ const updateEvent = async (req, res) => {
     const event = await eventModel.findByIdAndUpdate(
       { _id: id },
       {
+        link,
+        startTime,
+        endTime,
         domainId,
         teacherId,
         title,
-        time,
+        date,
         duration,
         description,
         image,
+        studentId,
       },
       { new: true }
     );
@@ -177,6 +266,7 @@ const updateEvent = async (req, res) => {
     });
   } catch (error) {
     if (req.file) deleteImage(req.file.location);
+    console.log(error);
     return res.status(500).json({
       success: false,
       error: "error while updating event",
@@ -191,4 +281,5 @@ export {
   deleteEvent,
   getEvent,
   updateEvent,
+  getTeacherEvents,
 };

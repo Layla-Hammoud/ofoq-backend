@@ -1,5 +1,6 @@
 import chapterModel from "../models/chapter.model.js";
 import mongoose from "mongoose";
+import courseModel from "../models/course.model.js";
 const createChapter = async (req, res) => {
   try {
     const { courseId, description, title, number, resources } = req.body;
@@ -55,10 +56,11 @@ const getChapters = async (req, res, next) => {
 const getChaptersByCourse = async (req, res, next) => {
   const { courseId } = req.body;
   try {
-    const chapters = await chapterModel.find({ courseId }).populate('resources');
+    const course = await courseModel.findById({_id: courseId})
+    const chapters = await chapterModel.find({ courseId }).populate('resources')
     return res.status(200).json({
       success: true,
-      data: chapters,
+      data: {chapters, course},
       message: "All chapter of the specified course retrieved successfully.",
     });
   } catch (error) {
