@@ -21,7 +21,11 @@ import {
 const userRouter = express.Router();
 
 userRouter.get("/get-user", isAuthenticated, getUser);
-userRouter.post("/delete", isAuthenticated, deleteUser);
+userRouter.post(
+  "/delete",
+  // isAuthenticated,
+  deleteUser
+);
 userRouter.get("/get-users", isAuthenticated, getUsers);
 userRouter.post("/get-profile", getTeacherProfile);
 userRouter.put(

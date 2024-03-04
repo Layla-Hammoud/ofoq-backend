@@ -1,4 +1,6 @@
 import eventModel from "../models/event.model.js";
+import userModel from "../models/user.model.js";
+import { sendEventParticipationEmail } from "../utils/sendingEmails.js";
 import mongoose from "mongoose";
 const createEvent = async (req, res) => {
   try {
@@ -214,18 +216,18 @@ const deleteEvent = async (req, res) => {
 const updateEvent = async (req, res) => {
   try {
     const {
-      link,
-      startTime,
-      endTime,
+      id,
       domainId,
       title,
       date,
       duration,
       description,
-      studentId,
-      id,
+      startTime,
+      endTime,
+      link,
       platformType,
     } = req.body;
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({
         success: false,
@@ -236,12 +238,13 @@ const updateEvent = async (req, res) => {
     let image;
     if (req.file) {
       image = req.file.location;
-      // deleteImage(oldimageURL);
+      deleteImage(oldimageURL);
     }
     const event = await eventModel.findByIdAndUpdate(
       { _id: id },
       {
         link,
+        platformType,
         startTime,
         endTime,
         domainId,
@@ -250,8 +253,6 @@ const updateEvent = async (req, res) => {
         duration,
         description,
         image,
-        studentId,
-        platformType,
       },
       { new: true }
     );
@@ -268,11 +269,132 @@ const updateEvent = async (req, res) => {
       message: "event updated successfully",
     });
   } catch (error) {
-    // if (req.file) deleteImage(req.file.location);
+    if (req.file) deleteImage(req.file.location);
     console.log(error);
     return res.status(500).json({
       success: false,
       error: "error while updating event",
+      data: null,
+    });
+  }
+};
+
+const addStudentToEvent = async (req, res) => {
+  try {
+    const { id, studentId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid event id",
+        data: null,
+      });
+    }
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid student id",
+        data: null,
+      });
+    }
+
+    const student = await userModel.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: "No such student",
+        data: null,
+      });
+    }
+
+    const event = await eventModel.findByIdAndUpdate(
+      { _id: id },
+      { $addToSet: { studentId } },
+      { new: true }
+    );
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        error: "No such event",
+        data: null,
+      });
+    }
+
+    await sendEventParticipationEmail(
+      student._id,
+      student.userName,
+      student.email,
+      event
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: event,
+      message: "student added to event successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      error: "error while adding student to event",
+      data: null,
+    });
+  }
+};
+
+const removeStudentFromEvent = async (req, res) => {
+  try {
+    const { id, studentId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid event id",
+        data: null,
+      });
+    }
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid student id",
+        data: null,
+      });
+    }
+
+    const student = await userModel.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: "No such student",
+        data: null,
+      });
+    }
+
+    const event = await eventModel.findByIdAndUpdate(
+      { _id: id },
+      { $pull: { studentId } },
+      { new: true }
+    );
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        error: "No such event",
+        data: null,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: event,
+      message: "student removed from event successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      error: "error while removing student from event",
       data: null,
     });
   }
@@ -285,4 +407,6 @@ export {
   getEvent,
   updateEvent,
   getTeacherEvents,
+  addStudentToEvent,
+  removeStudentFromEvent,
 };
