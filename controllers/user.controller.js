@@ -78,8 +78,7 @@ const register = async (req, res) => {
     bcrypt;
     res.cookie("accessToken", jwtToken, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production", // Set to true in production (requires HTTPS)
+      sameSite: "none",
     });
     return res.status(201).json({
       message: "User successfully created please log in to your account!",
@@ -126,8 +125,7 @@ const login = async (request, response) => {
 
     response.cookie("accessToken", jwtToken, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production", // Set to true in production (requires HTTPS)
+      sameSite: "none",
     });
 
     return response.status(200).json({

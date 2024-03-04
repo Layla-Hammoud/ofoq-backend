@@ -16,6 +16,6 @@ eventRouter.post("/get-all", getEvents);
 eventRouter.post("/getByTeacher", getTeacherEvents);
 eventRouter.post("/get-one", getEvent);
 eventRouter.post("/delete", deleteEvent);
-eventRouter.patch("/update", updateEvent);
+eventRouter.patch("/update", uploadImage.single("image"), updateEvent);
 
 export default eventRouter;

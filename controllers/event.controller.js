@@ -12,6 +12,7 @@ const createEvent = async (req, res) => {
       startTime,
       endTime,
       link,
+      platformType,
     } = req.body;
     if (
       !domainId ||
@@ -22,12 +23,13 @@ const createEvent = async (req, res) => {
       !duration ||
       !startTime ||
       !endTime ||
-      !link
+      !link ||
+      !platformType
     ) {
       return res.status(400).json({
         success: false,
         error:
-          "Incomplete data. Please provide domainId, teacherId, title, start Time ,end Time ,link, date, duration, description ",
+          "Incomplete data. Please provide domainId, platformType, teacherId, title, start Time ,end Time ,link, date, duration, description ",
         data: null,
       });
     }
@@ -48,6 +50,7 @@ const createEvent = async (req, res) => {
       duration,
       description,
       link,
+      platformType,
     });
     return res.status(200).json({
       success: true,
@@ -56,9 +59,9 @@ const createEvent = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    if (req.file) {
-      deleteImage(req.file.location);
-    }
+    // if (req.file) {
+    //   deleteImage(req.file.location);
+    // }
   }
   res
     .status(500)
@@ -211,17 +214,17 @@ const deleteEvent = async (req, res) => {
 const updateEvent = async (req, res) => {
   try {
     const {
-      id,
+      link,
+      startTime,
+      endTime,
       domainId,
-      teacherId,
       title,
       date,
       duration,
       description,
-      startTime,
-      endTime,
-      link,
       studentId,
+      id,
+      platformType,
     } = req.body;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({
@@ -233,7 +236,7 @@ const updateEvent = async (req, res) => {
     let image;
     if (req.file) {
       image = req.file.location;
-      deleteImage(oldimageURL);
+      // deleteImage(oldimageURL);
     }
     const event = await eventModel.findByIdAndUpdate(
       { _id: id },
@@ -242,13 +245,13 @@ const updateEvent = async (req, res) => {
         startTime,
         endTime,
         domainId,
-        teacherId,
         title,
         date,
         duration,
         description,
         image,
         studentId,
+        platformType,
       },
       { new: true }
     );
@@ -265,7 +268,7 @@ const updateEvent = async (req, res) => {
       message: "event updated successfully",
     });
   } catch (error) {
-    if (req.file) deleteImage(req.file.location);
+    // if (req.file) deleteImage(req.file.location);
     console.log(error);
     return res.status(500).json({
       success: false,
