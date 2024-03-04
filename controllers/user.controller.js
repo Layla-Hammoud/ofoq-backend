@@ -79,6 +79,7 @@ const register = async (req, res) => {
     res.cookie("accessToken", jwtToken, {
       httpOnly: true,
       sameSite: "none",
+      secure: "false",
     });
     return res.status(201).json({
       message: "User successfully created please log in to your account!",
@@ -126,6 +127,7 @@ const login = async (request, response) => {
     response.cookie("accessToken", jwtToken, {
       httpOnly: true,
       sameSite: "none",
+      secure: "false",
     });
 
     return response.status(200).json({
