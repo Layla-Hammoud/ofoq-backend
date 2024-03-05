@@ -227,7 +227,6 @@ const updateEvent = async (req, res) => {
       link,
       platformType,
     } = req.body;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({
         success: false,
@@ -238,7 +237,7 @@ const updateEvent = async (req, res) => {
     let image;
     if (req.file) {
       image = req.file.location;
-      deleteImage(oldimageURL);
+      // deleteImage(oldimageURL);
     }
     const event = await eventModel.findByIdAndUpdate(
       { _id: id },
@@ -269,7 +268,7 @@ const updateEvent = async (req, res) => {
       message: "event updated successfully",
     });
   } catch (error) {
-    if (req.file) deleteImage(req.file.location);
+    // if (req.file) deleteImage(req.file.location);
     console.log(error);
     return res.status(500).json({
       success: false,

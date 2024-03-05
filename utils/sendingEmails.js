@@ -117,3 +117,42 @@ export const sendEventParticipationEmail = async (id, name, email, event) => {
     body
   );
 };
+export const sendContactFormEmail = async (
+  firstName,
+  lastName,
+  email,
+  message
+) => {
+  const body = `<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Contact Form</title>
+      <style>
+        body {
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Hi, Layla</h1>
+      <h4>
+        You have a new message from the contact form
+      </h4>
+      <p>From: ${firstName} ${lastName}</p>
+      <p>Email: ${email}</p>
+      <p>Message: ${message}</p>
+    </body>
+  </html>`;
+
+  await sendEmail(
+    [
+      {
+        name: "Layla",
+        email: process.env.MAIL_USERNAME,
+      },
+    ],
+    "New Message from Contact Form",
+    body
+  );
+};

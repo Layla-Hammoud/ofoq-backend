@@ -31,7 +31,7 @@ const createCourse = async (req, res) => {
       message: "New academic domain has been created successfully.",
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     if (req.file) {
       deleteImage(req.file.location);
     }
@@ -91,36 +91,36 @@ const getCourse = async (req, res, next) => {
 };
 
 const getCoursesByDomain = async (req, res, next) => {
-    const { domainId } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(domainId)) {
-      return res.status(404).json({
-        success: false,
-        error: "No such domain",
-        data: null,
-      });
-    }
-    try {
-      const courses = await courseModel.find({ domainId });
-      if (!courses) {
-        return res.status(200).json({
-          success: true,
-          data: courses,
-          message: "No course found.",
-        });
-      }
-      res.status(200).json({
+  const { domainId } = req.body;
+  if (!mongoose.Types.ObjectId.isValid(domainId)) {
+    return res.status(404).json({
+      success: false,
+      error: "No such domain",
+      data: null,
+    });
+  }
+  try {
+    const courses = await courseModel.find({ domainId });
+    if (!courses) {
+      return res.status(200).json({
         success: true,
         data: courses,
-        message: "All course of the specific domain retrieved successfully.",
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: "error while getting courses",
-        data: null,
+        message: "No course found.",
       });
     }
-  };
+    res.status(200).json({
+      success: true,
+      data: courses,
+      message: "All course of the specific domain retrieved successfully.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "error while getting courses",
+      data: null,
+    });
+  }
+};
 
 const deleteCourse = async (req, res) => {
   try {
@@ -136,17 +136,17 @@ const deleteCourse = async (req, res) => {
     if (!course) {
       return res.status(404).json({
         success: false,
-        error: "No such Domain",
+        error: "No such course",
         data: null,
       });
     }
     // if (course.image){
     //   console.log(course.image)
     //   deleteImage(course.image);
-    // } 
+    // }
     res.status(200).json({
       success: true,
-      data: domain,
+      data: course,
       message: "course deleted successfully",
     });
   } catch (error) {
@@ -195,7 +195,7 @@ const updateCourse = async (req, res) => {
       message: "domain updated successfully",
     });
   } catch (error) {
-    if(req.file)deleteImage(req.file.location);
+    if (req.file) deleteImage(req.file.location);
     return res.status(500).json({
       success: false,
       error: "error while updating domain",
@@ -204,4 +204,11 @@ const updateCourse = async (req, res) => {
   }
 };
 
-export { createCourse, getCourses, deleteCourse, getCourse, updateCourse, getCoursesByDomain };
+export {
+  createCourse,
+  getCourses,
+  deleteCourse,
+  getCourse,
+  updateCourse,
+  getCoursesByDomain,
+};
