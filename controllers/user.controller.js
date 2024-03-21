@@ -76,10 +76,13 @@ const register = async (req, res) => {
     });
     const jwtToken = generateToken(newUser);
     bcrypt;
+    response.setHeader('Set-Cookie', [
+      `accessToken=${jwtToken}; httpOnly; secure; sameSite=None;`
+    ])
     res.cookie("accessToken", jwtToken, {
       httpOnly: true,
       sameSite: "none",
-      secure: false,
+      secure: true,
     });
     return res.status(201).json({
       message: "User successfully created please log in to your account!",
@@ -124,10 +127,14 @@ const login = async (request, response) => {
     // Generate JWT token
     const jwtToken = generateToken(user);
 
+    response.setHeader('Set-Cookie', [
+      `accessToken=${jwtToken}; httpOnly; secure; sameSite=None;`
+    ])
+
     response.cookie("accessToken", jwtToken, {
       httpOnly: true,
       sameSite: "none",
-      secure: false,
+      secure: true,
     });
 
     return response.status(200).json({
@@ -142,7 +149,16 @@ const login = async (request, response) => {
 
 const logout = async (request, response) => {
   try {
-    response.clearCookie("accessToken");
+    response.setHeader('Set-Cookie', [
+      `accessToken=; httpOnly; secure; sameSite=None; Expires=${new Date(0)};`
+    ])
+    response.cookie("accessToken", '', {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+      expires: new Date(0)
+    });
+
     response.status(200).json({
       message: "log out successfully",
       data: null,
@@ -152,7 +168,7 @@ const logout = async (request, response) => {
     return response.status(401).json({
       success: false,
       data: null,
-      message: error.message,
+      message: "error while log out",
     });
   }
 };
